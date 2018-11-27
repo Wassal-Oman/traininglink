@@ -1,0 +1,1 @@
+ssh -i "C:\Users\GhanimAlMarzouqi(Tha\Desktop\TrainingLink Dashboard\LinuxServerKeyPair.pem" ec2-user@ec2-18-191-41-128.us-east-2.compute.amazonaws.com
