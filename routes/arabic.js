@@ -1,12 +1,12 @@
 const express = require('express');
-const routes = express.Router();
+const router = express.Router();
 
-routes.get('/', (req, res) => {
-    res.render('pages/index-ar');
+router.get('/', (req, res) => {
+    res.render('pages/login-ar');
 });
 
-routes.get('/terms-and-conditions', (req, res) => {
+router.get('/terms-and-conditions', (req, res) => {
     res.render('pages/ar-terms');
 });
 
-module.exports = routes;
+module.exports = router;
