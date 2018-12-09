@@ -15,7 +15,7 @@ const connect = mysql.createConnection({
 });
 
 router.get('/', (req, res) => {
-    res.render('pages/login');
+    res.render('pages/login-en');
 });
 
 // login route
@@ -31,20 +31,32 @@ router.get('/login', (req, res) => {
 
     // check from database
     connect.execute(sql, [email, password], (err, results, fields) => {
-        if(err) res.send(err);
+        if(err){
+            console.log(err);
+            res.render('pages/500');
+        }
         else {
-            let data = JSON.parse(JSON.stringify(fields))[0];
-            if(data.length == 0) {
+            // get signed user
+            let user = JSON.parse(JSON.stringify(results))[0];
+            
+            if(user) {
+                res.redirect('/en/home');
+            } else {
                 res.send({
-                    meg: 'username or password is not correct'
+                    msg: 'Wrong username or password!'
                 });
             }
         }
     });
 });
 
+// home route
+router.get('/home', (req, res) => {
+    res.render('pages/home-en');
+});
+
 router.get('/terms-and-conditions', (req, res) => {
-    res.render('pages/en-terms');
+    res.render('pages/terms-en');
 });
 
 module.exports = router;

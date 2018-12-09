@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/terms-and-conditions', (req, res) => {
-    res.render('pages/ar-terms');
+    res.render('pages/terms-ar');
 });
 
 module.exports = router;
