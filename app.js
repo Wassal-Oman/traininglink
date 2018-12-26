@@ -2,8 +2,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const session = require('express-session');
+
+// routes
 const ar = require('./routes/arabic');
 const en = require('./routes/english');
 
@@ -16,28 +17,16 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
-app.use(cookieParser());
 app.use(session({
     key: 'user',
     secret: 'traininglink',
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-        expires: 600000
-    }
+    saveUninitialized: true
 }));
 
 // set the view engine and views folder
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
-// clear for cookies if exist
-app.use((req, res, next) => {
-    if (req.cookies.user && !req.session.user) {
-        res.clearCookie('user');        
-    }
-    next();
-});
 
 // routes
 app.use('/en', en);
@@ -50,7 +39,7 @@ app.get('/', (req, res) => {
 
 // if route does not exist
 app.use((req, res, next) => {
-    res.status(404).render('pages/404');
+    res.status(404).render('404');
 });
 
 // start server

@@ -2,7 +2,7 @@
 DB_CONNECTION = {
     HOST: 'training-link.c3jyfdlgayhq.us-east-2.rds.amazonaws.com',
     USERNAME: 'Intisar',
-    PASSWORD: 'Intisar123#',
+    PASSWORD: '$Intisar54321',
     DATABASE: 'traininglink',
 };
 

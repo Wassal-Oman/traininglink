@@ -4,7 +4,8 @@
   "description": "Training Link Dashboard",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "npm app.js",
+    "dev": "nodemon app.js"
   },
   "author": "Ghanim Al-Marzouqi",
   "license": "ISC",

@@ -1,0 +1,26 @@
+<!-- nav partial -->
+<nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+  <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
+    <a class="navbar-brand brand-logo" href="/en/home">
+      <img src="/images/logo.png" alt="Training Link Logo" width="50px" height="auto" />
+    </a>
+    <a class="navbar-brand brand-logo-mini" href="/en/home">
+      <img src="/images/logo.png" alt="logo" />
+    </a>
+  </div>
+  <div class="navbar-menu-wrapper d-flex align-items-center">
+    <ul class="navbar-nav navbar-nav-right">
+      <li class="nav-item dropdown d-none d-xl-inline-block">
+        <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+          <span class="profile-text">Hello, <%= user.name %></span>
+          <img class="img-xs rounded-circle" src="/images/admin-icon.jpg" alt="Profile image" />
+        </a>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+          <a href="/en/profile" class="dropdown-item mt-2"> User Profile </a>
+          <a href="/en/change-password" class="dropdown-item"> Change Password </a>
+          <a href="/en/logout" class="dropdown-item"> Sign Out </a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
