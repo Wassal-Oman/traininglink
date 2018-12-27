@@ -79,16 +79,16 @@ router.route('/login')
 router.get('/home', sessionChecker, (req, res) => {
 
     // get number of institutes
-    let instPromise = getUsersCount("`dashboard_users`", "'I'");
+    let instPromise = getUsersCount("'I'");
 
     // get number of companies
-    let compPromise = getUsersCount("`dashboard_users`", "'C'");
+    let compPromise = getUsersCount("'C'");
 
     // get number of students
-    let studPromise = getStudentCount();
+    let studPromise = getStudentsCount();
 
     // get number of quotations
-    let quotPromise = getQuotationCount();
+    let quotPromise = getQuotationsCount();
 
     // view english home page
     Promise.all([instPromise, compPromise, studPromise, quotPromise]).then(val => {
@@ -151,7 +151,7 @@ router.route('/profile')
                 res.redirect(req.get('referer'));
             } else {
                 // get signed user
-                res.redirect('/en/logout');
+                res.redirect('/en/home');
             }
         });
     });
@@ -231,29 +231,65 @@ router.get('/terms-and-conditions', (req, res) => {
 
 // institutes route
 router.get('/institutes', sessionChecker, (req, res) => {
-    res.render('institutes-en', {
-        user: req.session.user
+    // get institutes
+    getUsers("'I'").then(val => {
+        res.render('institutes-en', {
+            user: req.session.user,
+            values: val
+        });
+    }).catch(err => {
+        res.render('institutes-en', {
+            user: req.session.user,
+            values: err
+        });
     });
 });
 
 // companies route
 router.get('/companies', sessionChecker, (req, res) => {
-    res.render('companies-en', {
-        user: req.session.user
+    // get companies
+    getUsers("'C'").then(val => {
+        res.render('companies-en', {
+            user: req.session.user,
+            values: val
+        });
+    }).catch(err => {
+        res.render('companies-en', {
+            user: req.session.user,
+            values: err
+        });
     });
 });
 
 // students route
 router.get('/students', sessionChecker, (req, res) => {
-    res.render('students-en', {
-        user: req.session.user
+    // get students
+    getStudents().then(val => {
+        res.render('students-en', {
+            user: req.session.user,
+            values: val
+        });
+    }).catch(err => {
+        res.render('students-en', {
+            user: req.session.user,
+            values: err
+        });
     });
 });
 
 // quotations route
 router.get('/quotations', sessionChecker, (req, res) => {
-    res.render('quotations-en', {
-        user: req.session.user
+    // get students
+    getQuotations().then(val => {
+        res.render('quotations-en', {
+            user: req.session.user,
+            values: val
+        });
+    }).catch(err => {
+        res.render('quotations-en', {
+            user: req.session.user,
+            values: err
+        });
     });
 });
 
@@ -264,10 +300,43 @@ router.get('/logout', (req, res) => {
     res.redirect('/en/login');
 });
 
-// function to get count of dashboard users
-function getUsersCount(tableName, type) {
+// function to get dashboard users
+function getUsers(type) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT COUNT(*) as count FROM ${tableName} WHERE type = ${type}`;
+        const sql = "SELECT * FROM `dashboard_users` WHERE type = " + type;
+        connect.execute(sql, (err, results, fields) => {
+            if(err) return reject(null);
+            else return resolve(JSON.parse(JSON.stringify(results)));
+        });
+    });
+}
+
+// function to get students
+function getStudents() {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM `users`';
+        connect.execute(sql, (err, results, fields) => {
+            if(err) return reject(null);
+            else return resolve(JSON.parse(JSON.stringify(results)));
+        });
+    });
+}
+
+// function to get quotations
+function getQuotations() {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM `quotations`';
+        connect.execute(sql, (err, results, fields) => {
+            if(err) return reject(null);
+            else return resolve(JSON.parse(JSON.stringify(results)));
+        });
+    });
+}
+
+// function to get count of dashboard users
+function getUsersCount(type) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT COUNT(*) as count FROM `dashboard_users` WHERE type = " + type;
         connect.execute(sql, (err, results, fields) => {
             if(err) return reject(0);
             else return resolve(Number.parseInt(JSON.parse(JSON.stringify(results))[0].count));
@@ -276,7 +345,7 @@ function getUsersCount(tableName, type) {
 }
 
 // function to get count of students
-function getStudentCount() {
+function getStudentsCount() {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT COUNT(*) as count FROM `users`';
         connect.execute(sql, (err, results, fields) => {
@@ -287,7 +356,7 @@ function getStudentCount() {
 }
 
 // function to get count of students
-function getQuotationCount() {
+function getQuotationsCount() {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT COUNT(*) as count FROM `quotations`';
         connect.execute(sql, (err, results, fields) => {
