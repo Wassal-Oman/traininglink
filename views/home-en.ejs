@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="/vendors/css/vendor.bundle.base.css" />
     <link rel="stylesheet" href="/vendors/css/vendor.bundle.addons.css" />
     <link rel="stylesheet" href="/css/style.css" />
-    <link rel="shortcut icon" href="/images/favicon.png" />
   </head>
 
   <body>
@@ -34,7 +33,7 @@
                         <p class="mb-0 text-right">Institutes</p>
                         <div class="fluid-container">
                           <h3 class="font-weight-medium text-right mb-0">
-                            85
+                            <%= instCount %>
                           </h3>
                         </div>
                       </div>
@@ -51,13 +50,13 @@
                   <div class="card-body">
                     <div class="clearfix">
                       <div class="float-left">
-                        <i class="mdi mdi-city text-success icon-lg"></i>
+                        <i class="mdi mdi-city text-primary icon-lg"></i>
                       </div>
                       <div class="float-right">
                         <p class="mb-0 text-right">Companies</p>
                         <div class="fluid-container">
                           <h3 class="font-weight-medium text-right mb-0">
-                            85
+                              <%= compCount %>
                           </h3>
                         </div>
                       </div>
@@ -75,14 +74,14 @@
                     <div class="clearfix">
                       <div class="float-left">
                         <i
-                          class="mdi mdi-human-male-female text-info icon-lg"
+                          class="mdi mdi-human-male-female text-warning icon-lg"
                         ></i>
                       </div>
                       <div class="float-right">
                         <p class="mb-0 text-right">Students</p>
                         <div class="fluid-container">
                           <h3 class="font-weight-medium text-right mb-0">
-                            246
+                              <%= studCount %>
                           </h3>
                         </div>
                       </div>
@@ -99,13 +98,13 @@
                   <div class="card-body">
                     <div class="clearfix">
                       <div class="float-left">
-                        <i class="mdi mdi-file-document text-warning icon-lg"></i>
+                        <i class="mdi mdi-file-document text-success icon-lg"></i>
                       </div>
                       <div class="float-right">
                         <p class="mb-0 text-right">Quotations</p>
                         <div class="fluid-container">
                           <h3 class="font-weight-medium text-right mb-0">
-                            250
+                              <%= quotCount %>
                           </h3>
                         </div>
                       </div>
@@ -119,177 +118,19 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-12 grid-margin">
+              <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <div class="row d-none d-sm-flex mb-4">
-                      <div class="col-4">
-                        <h5 class="text-primary">Unique Visitors</h5>
-                        <p>34657</p>
-                      </div>
-                      <div class="col-4">
-                        <h5 class="text-primary">Bounce Rate</h5>
-                        <p>45673</p>
-                      </div>
-                      <div class="col-4">
-                        <h5 class="text-primary">Active session</h5>
-                        <p>45673</p>
-                      </div>
-                    </div>
-                    <div class="chart-container">
-                      <canvas id="dashboard-area-chart" height="80"></canvas>
-                    </div>
+                    <h4 class="card-title">Bar chart</h4>
+                    <canvas id="bar-chart" style="height:230px"></canvas>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-12 grid-margin">
+              <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Orders</h4>
-                    <div class="table-responsive">
-                      <table class="table table-bordered">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>First name</th>
-                            <th>Progress</th>
-                            <th>Amount</th>
-                            <th>Sales</th>
-                            <th>Deadline</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="font-weight-medium">1</td>
-                            <td>Herman Beck</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-success progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 25%"
-                                  aria-valuenow="25"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$ 77.99</td>
-                            <td class="text-danger">
-                              53.64% <i class="mdi mdi-arrow-down"></i>
-                            </td>
-                            <td>May 15, 2015</td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">2</td>
-                            <td>Messsy Adam</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-danger progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 75%"
-                                  aria-valuenow="75"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$245.30</td>
-                            <td class="text-success">
-                              24.56% <i class="mdi mdi-arrow-up"></i>
-                            </td>
-                            <td>July 1, 2015</td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">3</td>
-                            <td>John Richards</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-warning progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 90%"
-                                  aria-valuenow="90"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$138.00</td>
-                            <td class="text-danger">
-                              28.76% <i class="mdi mdi-arrow-down"></i>
-                            </td>
-                            <td>Apr 12, 2015</td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">4</td>
-                            <td>Peter Meggik</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-primary progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 50%"
-                                  aria-valuenow="50"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$ 77.99</td>
-                            <td class="text-danger">
-                              53.45% <i class="mdi mdi-arrow-down"></i>
-                            </td>
-                            <td>May 15, 2015</td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">5</td>
-                            <td>Edward</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-danger progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 35%"
-                                  aria-valuenow="35"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$ 160.25</td>
-                            <td class="text-success">
-                              18.32% <i class="mdi mdi-arrow-up"></i>
-                            </td>
-                            <td>May 03, 2015</td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">6</td>
-                            <td>Henry Tom</td>
-                            <td>
-                              <div class="progress">
-                                <div
-                                  class="progress-bar bg-warning progress-bar-striped"
-                                  role="progressbar"
-                                  style="width: 20%"
-                                  aria-valuenow="20"
-                                  aria-valuemin="0"
-                                  aria-valuemax="100"
-                                ></div>
-                              </div>
-                            </td>
-                            <td>$ 150.00</td>
-                            <td class="text-danger">
-                              24.67% <i class="mdi mdi-arrow-down"></i>
-                            </td>
-                            <td>June 16, 2015</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                    <h4 class="card-title">Doughnut chart</h4>
+                    <canvas id="doughnut-chart" style="height:250px"></canvas>
                   </div>
                 </div>
               </div>
@@ -304,10 +145,53 @@
     </div>
 
     <!-- JS Files -->
+    <script src="/js/jquery.min.js"></script>
     <script src="/vendors/js/vendor.bundle.base.js"></script>
     <script src="/vendors/js/vendor.bundle.addons.js"></script>
     <script src="/js/off-canvas.js"></script>
     <script src="/js/misc.js"></script>
+    <script src="/js/chart.js"></script>
     <script src="/js/dashboard.js"></script>
+
+    <!-- Chart Info -->
+    <script>
+      let myDoughnutChart = document.getElementById('doughnut-chart').getContext('2d');
+      let myBarChart = document.getElementById('bar-chart').getContext('2d');
+
+      let userStat = new Chart(myDoughnutChart, {
+        type: 'doughnut',
+        data: {
+          labels: ['Institutes', 'Companies', 'Students', 'Quotations'],
+          datasets: [{
+            data: [ '<%= instCount %>', '<%= compCount %>', '<%= studCount %>', '<%= quotCount %>' ],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(54, 162, 235, 0.8)',
+              'rgba(255, 206, 86, 0.8)',
+              'rgba(75, 192, 192, 0.8)'
+            ],
+          }]
+        },
+        options: {}
+      });
+
+      let barStat = new Chart(myBarChart, {
+        type: 'bar',
+        data: {
+          labels: ['Institutes', 'Companies', 'Students', 'Quotations'],
+          datasets: [{
+            label: 'Statistics',
+            data: [ '<%= instCount %>', '<%= compCount %>', '<%= studCount %>', '<%= quotCount %>' ],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(54, 162, 235, 0.8)',
+              'rgba(255, 206, 86, 0.8)',
+              'rgba(75, 192, 192, 0.8)'
+            ],
+          }]
+        },
+        options: {}
+      });
+    </script>
   </body>
 </html>
