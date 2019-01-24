@@ -1,19 +1,20 @@
-// Functions
-@function social-color($key: "twitter") {
-  @return map-get($social-colors, $key);
+﻿@function char($character-code) {
+    @if function-exists("selector-append") {
+        @return unquote("\"\\#{$character-code}\"");
+    }
+
+    @if "\\#{'x'}" == "\\x" {
+        @return str-slice("\x", 1, 1) + $character-code;
+    }
+    @else {
+        @return #{"\"\\"}#{$character-code + "\""};
+    }
 }
 
-// Social Color
-@each $color,
-$value in $social-colors {
-  .text-#{$color} {
-    @include text-color(social-color($color));
-  }
-}
-
-@each $color,
-$value in $social-colors {
-  .bg-#{$color} {
-    background: social-color($color);
-  }
+@function mdi($name) {
+    @if map-has-key($mdi-icons, $name) == false {
+        @warn "Icon #{$name} not found.";
+        @return "";
+    }
+    @return char(map-get($mdi-icons, $name));
 }

@@ -1,20 +1,18 @@
 // import needed library
 const express = require('express');
-const mysql = require('mysql2');
-const settings = require('../settings');
-const mail = require('../sendmail');
+const emailValidator = require('email-validator');
+const settings = require('../config/settings');
+const mail = require('../config/sendmail');
+const encrypt = require('../config/encryption');
+const User = require('../models/User');
+const Institute = require('../models/Institute');
+const Student = require('../models/Student');
+const Company = require('../models/Company');
+const Quotation = require('../models/Quotation');
 const router = express.Router();
 
-// import database settings
-const connection = settings.DB_CONNECTION;
-
-// create database connection
-const connect = mysql.createConnection({
-    host: connection.HOST,
-    user: connection.USERNAME,
-    password: connection.PASSWORD,
-    database: connection.DATABASE
-});
+// get host
+const host = settings.HOST_URL;
 
 // middleware function to check for logged-in users
 const sessionChecker = (req, res, next) => {
@@ -25,272 +23,439 @@ const sessionChecker = (req, res, next) => {
     }    
 };
 
+/* **** Common Routes **** */
+
 // default route
 router.get('/', sessionChecker, (req, res) => {
     res.redirect('/en/home');
 });
 
-// login routes
-router.route('/login')
-    .get((req, res) => {
+// login - GET
+router.get('/login', (req, res) => {
+    // check if user logged in
+    if(req.session.user) {
+        res.redirect('/en/home');
+    }
 
-        // check if user logged in
-        if(req.session.user) {
-            res.redirect('/en/home');
-        }
+    // load login page
+    res.render('english/login');
+});
 
-        // load login page
-        res.render('login-en');
+// login - POST
+router.post('/login', (req, res) => {
+    // read data from request
+    const { email, password } = req.body;
+    let errors = [];
 
-    }).post((req, res) => {
+    // validation
+    if (!email || !password) {
+        errors.push({ msg: 'Please enter all fields' });
+    } else if(!emailValidator.validate(email)) {
+        errors.push({ msg: 'Email is invalid' });
+    } else if (password.length < 6) {
+        errors.push({ msg: 'Password must be at least 6 characters' });
+    }
 
-        // read data from request
-        let email = req.body.email;
-        let password = req.body.password;
-        let type = req.body.type;
-
-        // prepare sql
-        const sql = 'SELECT * FROM `dashboard_users` WHERE `email` = ? AND `password` = ? AND `type` = ? LIMIT 1';
-
-        // check from database
-        connect.execute(sql, [email, password, type], (err, results, fields) => {
-            if(err){
-                console.log(err);
-                res.render('500');
-            }
-            else {
-                // get signed user
-                let user = JSON.parse(JSON.stringify(results))[0];
-                
-                // check for user
-                if(user) {
-                    // store user credentials
-                    req.session.user = user;
-                    res.redirect('/en/home');
-                } else {
-                    // reload page
-                    res.redirect(req.get('referer'));
-                }
-            }
+    // check if errors exist
+    if (errors.length > 0) {
+        res.render('english/login', {
+            errors,
+            email,
+            password
         });
-    });
+    } else {
+        // get user
+        User.findOne({ where: { email: email } }).then((user) => {
+            if (!user) {
+                // reload page
+                req.flash('error', 'User does not exist');
+                res.redirect(req.get('referer'));
+            } else {
+                // compare input password with db password
+                encrypt.compareData(password, user.dataValues.password).then(val => {
+                    if(!val) {
+                        // reload page
+                        req.flash('error', 'Password is incorrect');
+                        res.redirect(req.get('referer'));
+                    } else {
+                        // redirect to home page
+                        req.session.user = user.dataValues;
+
+                        // // check user
+                        switch(req.session.user.dashboardUserTypeId) {
+                            case 1:
+                                res.redirect('/en/home');
+                                break;
+                            case 2:
+                                res.redirect('/en/institute');
+                                break;
+                            case 3:
+                                res.redirect('/en/company');
+                                break;
+                            default:
+                                res.redirect('/en/logout');
+                        }
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    req.flash('error', 'Cannot encript password');
+                    res.redirect(req.get('referer'));
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/en/500');
+        });
+    }
+});
 
 // home route
 router.get('/home', sessionChecker, (req, res) => {
 
-    // get number of institutes
-    let instPromise = getUsersCount("'I'");
+    // active pages
+    const pages = {
+        home: 'active',
+        profile: '',
+        users: '',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
 
-    // get number of companies
-    let compPromise = getUsersCount("'C'");
+    // promises
+    const instPromise = getInstitutesCount();
+    const compPromise = getCompaniesCount();
+    const studPromise = getStudentsCount();
+    const quotPromise = getQuotationsCount();
 
-    // get number of students
-    let studPromise = getStudentsCount();
-
-    // get number of quotations
-    let quotPromise = getQuotationsCount();
-
-    // view english home page
+    // execute all promises
     Promise.all([instPromise, compPromise, studPromise, quotPromise]).then(val => {
-        res.render('home-en', {
+         // render home page
+        res.render('english/home', {
             user: req.session.user,
+            pages,
             instCount: val[0],
             compCount: val[1],
             studCount: val[2],
             quotCount: val[3]
         });
     }).catch(err => {
-        res.render('home-en', {
-            user: req.session.user,
-            instCount: 0,
-            compCount: 0,
-            studCount: 0,
-            quotCount: 0
-        });
+        console.log(err);
+        res.redirect('/en/500');
     });
 });
 
-// user profile route
-router.route('/profile')
-    .get(sessionChecker, (req, res) => {
+// user profile - GET
+router.get('/profile', sessionChecker, (req, res) => {
+    // specify role
+    let role = '';
+    switch(req.session.user.type) {
+        case 'A':
+            role = 'Administrator';
+            break;
+        case 'I':
+            role = 'Institute';
+            break;
+        case 'C':
+            role = 'Company';
+            break;
+    }
 
-        // specify role
-        let role = '';
-        switch(req.session.user.type) {
-            case 'A':
-                role = 'Administrator';
-                break;
-            case 'I':
-                role = 'Institute';
-                break;
-            case 'C':
-                role = 'Company';
-                break;
-        }
+    // active pages
+    const pages = {
+        home: '',
+        profile: 'active',
+        users: '',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
 
-        // render profile page
-        res.render('profile-en', {
-            user: req.session.user,
-            type: role
-        });
-    }).post(sessionChecker, (req, res) => {
-
-        // get user input
-        let id = req.session.user.id;
-        let name = req.body.name;
-        let email = req.body.email;
-        let phone = req.body.phone;
-
-        // sql query
-        const sql = 'UPDATE `dashboard_users` SET name = ?, email = ?, phone = ? WHERE id = ?';
-
-        // execute query
-        connect.execute(sql, [name, email, phone, id], (err, results, fields) => {
-            if(err) {
-                // reload page
-                res.redirect(req.get('referer'));
-            } else {
-                // get signed user
-                res.redirect('/en/home');
-            }
-        });
+    // render profile page
+    res.render('english/profile', {
+        user: req.session.user,
+        type: role,
+        pages
     });
+});
 
-// change password routes
-router.route('/change-password')
-    .get(sessionChecker, (req, res) => {
-        res.render('change-password-en', {
-            user: req.session.user
+// user profile - POST
+router.post('/profile', sessionChecker, (req, res) => {
+    // get user input
+    const id = req.session.user.id;
+    const { name, email, phone } = req.body;
+    let errors = [];
+
+    // specify role
+    let role = '';
+    switch(req.session.user.type) {
+        case 'A':
+            role = 'Administrator';
+            break;
+        case 'I':
+            role = 'Institute';
+            break;
+        case 'C':
+            role = 'Company';
+            break;
+    }
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: 'active',
+        users: '',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // validation
+    if (!name || !email || !phone) {
+        errors.push({ msg: 'Please enter all fields' });
+    } else if(!emailValidator.validate(email)) {
+        errors.push({ msg: 'Email is invalid' });
+    }
+
+    // check if errors exist
+    if (errors.length > 0) {
+        res.render('english/profile', {
+            errors,
+            user: req.session.user,
+            role,
+            pages
         });
-    }).post(sessionChecker, (req, res) => {
+    } else {
+        // update profile
+    }
+});
+
+// change password - POST
+router.post('/change-password', sessionChecker, (req, res) => {
 
         // get old and new password
-        let userId = req.session.user.id;
-        let oldPassword = req.body.oldPassword;
-        let newPassword = req.body.newPassword;
-        let confirmPassword = req.body.confirmPassword;
+        const id = req.session.user.id;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
 
-        // check passwords
-        if(newPassword == confirmPassword) {
-            // sql query
-            const sql = 'UPDATE `dashboard_users` SET password = ? WHERE id = ? AND password = ?';
+        let errors = [];
 
-            // execute query
-            connect.execute(sql, [newPassword, userId, oldPassword], (err, results, fields) => {
-                if(err) {
-                    // reload page
-                    res.redirect(req.get('referer'));
-                } else {
-                    // get signed user
-                    res.redirect('/en/logout');
-                }
+        // active pages
+        const pages = {
+            home: '',
+            profile: 'active',
+            users: '',
+            institutes: '',
+            companies: '',
+            students: '',
+            quotations: ''
+        };
+
+        // validation
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            errors.push({ msg: 'Please enter all fields' });
+        } else if (oldPassword.length < 6 || newPassword.length < 6 || confirmPassword.length < 6 ) {
+            errors.push({ msg: 'Password must be at least 6 characters' });
+        } else if(newPassword !== confirmPassword) {
+            errors.push({ msg: 'Passwords do not match' });
+        }
+
+        // check if errors exist
+        if(errors.length > 0) {
+            res.render('english/profile', {
+                user: req.session.user,
+                pages,
+                errors
             });
         } else {
-            // reload page
-            res.redirect(req.get('referer'));
+            // change password
         }
-    });
+});
 
-// forget password route
-router.route('/forget-password')
-    .get((req, res) => {
-        res.render('forget-password-en');
-    }).post((req, res) => {
-        // get user email
-        let email = req.body.email;
+// forget password - GET
+router.get('/forget-password', (req, res) => {
+    // render forget password page
+    res.render('english/forget-password');
+});
 
-        // specify role
-        let role = '';
-        switch(req.body.type) {
-            case 'A':
-                role = 'Administrator';
-                break;
-            case 'I':
-                role = 'Institute';
-                break;
-            case 'C':
-                role = 'Company';
-                break;
-        }
+// forget password - POST
+router.post('/forget-password', (req, res) => {
+    // get user email
+    const email = req.body.email;
+    let errors = [];
 
-        // send email
-        mail('Forget Password', `I forgot my password, my email is ${email} and I'm a/an ${role}.`).then(val => {
-            res.redirect('/en/login');
-        }).catch(err => {
-            console.log(err);
-            res.redirect(req.get('referer'));
+    // validation
+    if (!email) {
+        errors.push({ msg: 'Please enter email' });
+    } else if (!emailValidator.validate(email)) {
+        errors.push({ msg: 'Email is invalid' });
+    }
+
+    // check if errors exist
+    if(errors.length > 0) {
+        res.render('english/forget-password', {
+            errors
         });
-    });
+    } else {
+         // send email
+    }
+});
 
 // terms and condition route
 router.get('/terms-and-conditions', (req, res) => {
-    res.render('terms-en', {
-        user: req.session.user
+    // render terms and conditions page
+    res.render('english/terms');
+});
+
+// users router - GET
+router.get('/users', sessionChecker, (req, res) => {
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: 'active',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // load data
+    getUsers().then(val => {
+        // render institutes view
+        res.render('english/users', {
+            user: req.session.user,
+            pages,
+            data: val
+        });
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/en/500');
     });
 });
 
-// institutes route
+// inistitute route - GET
 router.get('/institutes', sessionChecker, (req, res) => {
-    // get institutes
-    getUsers("'I'").then(val => {
-        res.render('institutes-en', {
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: 'active',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // load data
+    getInstitutes().then(val => {
+        // render institutes view
+        res.render('english/institutes', {
             user: req.session.user,
-            values: val
+            pages,
+            data: val
         });
     }).catch(err => {
-        res.render('institutes-en', {
-            user: req.session.user,
-            values: err
-        });
+        console.log(err);
+        res.redirect('/en/500');
     });
 });
 
-// companies route
+// companies route - GET
 router.get('/companies', sessionChecker, (req, res) => {
-    // get companies
-    getUsers("'C'").then(val => {
-        res.render('companies-en', {
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: '',
+        companies: 'active',
+        students: '',
+        quotations: ''
+    };
+
+    // load data
+    getCompanies().then(val => {
+        // render institutes view
+        res.render('english/companies', {
             user: req.session.user,
-            values: val
+            pages,
+            data: val
         });
     }).catch(err => {
-        res.render('companies-en', {
-            user: req.session.user,
-            values: err
-        });
+        console.log(err);
+        res.redirect('/en/500');
     });
 });
 
-// students route
+// students route - GET
 router.get('/students', sessionChecker, (req, res) => {
-    // get students
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: '',
+        companies: '',
+        students: 'active',
+        quotations: ''
+    };
+
+    // load data
     getStudents().then(val => {
-        res.render('students-en', {
+        // render institutes view
+        res.render('english/students', {
             user: req.session.user,
-            values: val
+            pages,
+            data: val
         });
     }).catch(err => {
-        res.render('students-en', {
-            user: req.session.user,
-            values: err
-        });
+        console.log(err);
+        res.redirect('/en/500');
     });
 });
 
-// quotations route
+// quotations route - GET
 router.get('/quotations', sessionChecker, (req, res) => {
-    // get students
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: 'active'
+    };
+
+    // load data
     getQuotations().then(val => {
-        res.render('quotations-en', {
+        // render institutes view
+        res.render('english/quotations', {
             user: req.session.user,
-            values: val
+            pages,
+            host,
+            data: val
         });
     }).catch(err => {
-        res.render('quotations-en', {
-            user: req.session.user,
-            values: err
-        });
+        console.log(err);
+        res.redirect('/en/500');
     });
+});
+
+// institute route - GET
+router.get('/institute', sessionChecker, (req, res) => {
+    res.send('Hello Institute User');
+});
+
+// company route - GET
+router.get('/company', sessionChecker, (req, res) => {
+    res.send('Hello Company User');
 });
 
 // logout route
@@ -300,13 +465,21 @@ router.get('/logout', (req, res) => {
     res.redirect('/en/login');
 });
 
+// 500 route
+router.get('/500', (req, res) => {
+    // destroy session
+    req.session.destroy();
+    res.status(500).render('500');
+});
+
 // function to get dashboard users
-function getUsers(type) {
+function getUsers() {
     return new Promise((resolve, reject) => {
-        const sql = "SELECT * FROM `dashboard_users` WHERE type = " + type;
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(null);
-            else return resolve(JSON.parse(JSON.stringify(results)));
+        User.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            console.log(err);
+            return reject(null);
         });
     });
 }
@@ -314,10 +487,35 @@ function getUsers(type) {
 // function to get students
 function getStudents() {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM `users`';
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(null);
-            else return resolve(JSON.parse(JSON.stringify(results)));
+        Student.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            console.log(err);
+            return reject(null);
+        });
+    });
+}
+
+// function to get institutes
+function getInstitutes() {
+    return new Promise((resolve, reject) => {
+        Institute.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            console.log(err);
+            return reject(null);
+        });
+    });
+}
+
+// function to get companies
+function getCompanies() {
+    return new Promise((resolve, reject) => {
+        Company.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            console.log(err);
+            return reject(null);
         });
     });
 }
@@ -325,10 +523,11 @@ function getStudents() {
 // function to get quotations
 function getQuotations() {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM `quotations`';
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(null);
-            else return resolve(JSON.parse(JSON.stringify(results)));
+        Quotation.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            console.log(err);
+            return reject(null);
         });
     });
 }
@@ -336,10 +535,10 @@ function getQuotations() {
 // function to get count of dashboard users
 function getUsersCount(type) {
     return new Promise((resolve, reject) => {
-        const sql = "SELECT COUNT(*) as count FROM `dashboard_users` WHERE type = " + type;
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(0);
-            else return resolve(Number.parseInt(JSON.parse(JSON.stringify(results))[0].count));
+        User.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
         });
     });
 }
@@ -347,10 +546,32 @@ function getUsersCount(type) {
 // function to get count of students
 function getStudentsCount() {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT COUNT(*) as count FROM `users`';
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(0);
-            else return resolve(Number.parseInt(JSON.parse(JSON.stringify(results))[0].count));
+        Student.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+// function to get count of institutes
+function getInstitutesCount() {
+    return new Promise((resolve, reject) => {
+        Institute.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+// function to get count of companies
+function getCompaniesCount() {
+    return new Promise((resolve, reject) => {
+        Company.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
         });
     });
 }
@@ -358,10 +579,10 @@ function getStudentsCount() {
 // function to get count of students
 function getQuotationsCount() {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT COUNT(*) as count FROM `quotations`';
-        connect.execute(sql, (err, results, fields) => {
-            if(err) return reject(0);
-            else return resolve(Number.parseInt(JSON.parse(JSON.stringify(results))[0].count));
+        Quotation.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
         });
     });
 }

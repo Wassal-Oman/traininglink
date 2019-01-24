@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 // routes
 const ar = require('./routes/arabic');
@@ -16,6 +17,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(flash());
 app.use(express.static('public'));
 app.use(session({
     key: 'user',
@@ -27,6 +29,14 @@ app.use(session({
 // set the view engine and views folder
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+// notification messages
+app.use(function(req, res, next) {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    res.locals.warning = req.flash('warning');
+    next();
+});
 
 // routes
 app.use('/en', en);

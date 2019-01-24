@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Head Partial -->
+  <%- include('../partials/head'); %>
+  
+  <title>Training Link | Quotations</title>
+
+  <!-- Custom Style -->
+  <style>
+    .dropdown-toggle::after {
+        display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper ">
+    <!-- Sidebar Partial -->
+    <%- include('../partials/sidebar'); %>
+
+    <div class="main-panel">
+      <!-- Nav Partial -->
+      <%- include('../partials/nav', { user }); %>
+      
+      <!-- Content -->
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">List of Quotations</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class="text-primary">
+                        <th>Quotation File</th>
+                        <th>Institute</th>
+                        <th>Manage</th>
+                      </thead>
+                      <tbody>
+                        <% if(data.length > 0) {%>
+                        <% data.forEach(d => {%>
+                          <tr>
+                            <td><a href="<%= host %>/<%= d.quotation %>"><%= d.quotation %></a></td>
+                            <td><%= d.instituteInstituteId %></td>
+                            <td>
+                              <div class="dropdown show">
+                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  <i class="material-icons">settings</i>
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                  <a class="dropdown-item" href="en/quotations/<%= d.id %>/show">Show</a>
+                                  <a class="dropdown-item" href="en/quotations/<%= d.id %>/delete" onclick="confirm('Are you sure to delete this quotation?')">Delete</a>
+                                  <a class="dropdown-item" href="en/quotations/<%= d.id %>/edit" onclick="confirm('Are you sure to edit this quotation?')">Edit</a>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        <% });} else { %>
+                          <td class="text-center" colspan="3">No Data Available</td>
+                        <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Foorter Partial -->
+      <%- include('../partials/footer'); %>
+    </div>
+  </div>
+
+  <!-- JS Scripts Partial -->
+  <%- include('../partials/scripts'); %>
+</body>
+</html>

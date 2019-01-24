@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <!-- Head Partial -->
+  <%- include('../partials/head'); %>
+
+  <title>Training Link | Profile</title>
+
+  <!-- Custom Style -->
+  <style>
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    .card {
+      width: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <!-- Sidebar Partial -->
+    <%- include('../partials/sidebar'); %>
+
+    <div class="main-panel">
+
+      <!-- Nav Partial -->
+      <%- include('../partials/nav', { user }); %>
+
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mx-auto">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">User Profile</h4>
+                </div>
+                <div class="card-body">
+                  <form>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">User Name</label>
+                          <input name="name" type="text" class="form-control" value="<%= user.name %>">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Email Address</label>
+                          <input type="email" class="form-control" value="<%= user.email %>">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Phone Number</label>
+                          <input type="number" class="form-control" value="<%= user.phone %>">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <div class="form-group">
+                            <select name="type" class="custom-select" disabled>
+                              <option value="1" <% if(user.dashboardUserTypeId === 1) { %><%= 'selected' %><% }%>>Administrator</option>
+                              <option value="2" <% if(user.dashboardUserTypeId === 2) { %><%= 'selected' %><% }%>>Institute</option>
+                              <option value="3" <% if(user.dashboardUserTypeId === 3) { %><%= 'selected' %><% }%>>Company</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card mx-auto">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">Change Password</h4>
+                </div>
+                <div class="card-body">
+                  <%- include('../partials/messages'); %>
+                  <form action="/en/change-password" method="POST">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Old Password</label>
+                          <input name="oldPassword" type="password" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">New Password</label>
+                          <input name="newPassword" type="password" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Confirm Password</label>
+                          <input name="confirmPassword" type="password" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <input type="submit" value="Change Password" class="btn btn-primary pull-right">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Foorter Partial -->
+      <%- include('../partials/footer'); %>
+
+    </div>
+  </div>
+
+  <!-- JS Scripts Partial -->
+  <%- include('../partials/scripts'); %>
+
+</body>
+</html>

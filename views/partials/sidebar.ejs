@@ -1,34 +1,62 @@
-<nav class="sidebar sidebar-offcanvas" id="sidebar">
-  <ul class="nav" style="position: fixed;">
-    <li class="nav-item">
-      <a class="nav-link" href="/en/home">
-        <i class="menu-icon mdi mdi-television"></i>
-        <span class="menu-title">Dashboard</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/en/institutes">
-        <i class="menu-icon mdi mdi-school"></i>
-        <span class="menu-title">Institutes</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/en/companies">
-        <i class="menu-icon mdi mdi-city"></i>
-        <span class="menu-title">Companies</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/en/students">
-        <i class="menu-icon mdi mdi-human-male-female"></i>
-        <span class="menu-title">Students</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/en/quotations">
-        <i class="menu-icon mdi mdi-file-document "></i>
-        <span class="menu-title">Quotations</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+<!-- Sidebar -->
+<div class="sidebar" data-color="purple" data-background-color="white" data-image="/images/sidebar.jpg">
+  <!-- Logo -->
+  <div class="logo">
+    <a href="/en/home" class="simple-text logo-normal">
+      <img src="/images/logo.png" alt="Training Link Logo" width="100px" height="auto">
+    </a>
+  </div>
+  <!-- Sidebar Links -->
+  <div class="sidebar-wrapper">
+    <ul class="nav">
+      <li class="nav-item <%= pages.home %>">
+        <a class="nav-link" href="/en/home">
+          <i class="material-icons">dashboard</i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.profile %>">
+        <a class="nav-link" href="/en/profile">
+          <i class="material-icons">person</i>
+          <p>profile</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.users %>">
+        <a class="nav-link" href="/en/users">
+          <i class="material-icons">people</i>
+          <p>Users</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.institutes %>">
+        <a class="nav-link" href="/en/institutes">
+          <i class="material-icons">school</i>
+          <p>Institutes</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.companies %>">
+        <a class="nav-link" href="/en/companies">
+          <i class="material-icons">business</i>
+          <p>Companies</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.students %>">
+        <a class="nav-link" href="/en/students">
+          <i class="material-icons">wc</i>
+          <p>Students</p>
+        </a>
+      </li>
+      <li class="nav-item <%= pages.quotations %>">
+        <a class="nav-link" href="/en/quotations">
+          <i class="material-icons">assignment</i>
+          <p>Quotations</p>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/en/logout">
+          <i class="material-icons">exit_to_app</i>
+          <p>Log out</p>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

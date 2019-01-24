@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Head Partial -->
+    <%- include('../partials/head'); %>
+
+    <title>Training Link | Users</title>
+
+    <!-- Custom Style -->
+    <style>
+      .dropdown-toggle::after {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper ">
+      <!-- Sidebar Partial -->
+      <%- include('../partials/sidebar'); %>
+
+      <div class="main-panel">
+        <!-- Nav Partial -->
+        <%- include('../partials/nav', { user }); %>
+
+        <!-- Content -->
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title ">List of Users</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead class="text-primary">
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Phone</th>
+                          <th>Role</th>
+                          <th>Manage</th>
+                        </thead>
+                        <tbody>
+                          <% if(data.length > 0) {%> <% data.forEach(d => {%>
+                          <tr>
+                            <td><%= d.name %></td>
+                            <td><%= d.email %></td>
+                            <td><%= d.phone %></td>
+                            <td>
+                              <% if(d.dashboardUserTypeId == 1) { %>
+                              Administrator <% } else if(d.dashboardUserTypeId
+                              == 2) { %> Institute <% } else
+                              if(d.dashboardUserTypeId == 3) { %> Company <% }
+                              %>
+                            </td>
+                            <td>
+                              <div class="dropdown show">
+                                <a
+                                  class="dropdown-toggle"
+                                  href="#"
+                                  role="button"
+                                  id="dropdownMenuLink"
+                                  data-toggle="dropdown"
+                                  aria-haspopup="true"
+                                  aria-expanded="false"
+                                >
+                                  <i class="material-icons">settings</i>
+                                </a>
+                                <div
+                                  class="dropdown-menu"
+                                  aria-labelledby="dropdownMenuLink"
+                                >
+                                  <a
+                                    class="dropdown-item"
+                                    href="en/users/<%= d.id %>/delete"
+                                    onclick="confirm('Are you sure to delete this user?')"
+                                    >Delete</a
+                                  >
+                                  <a
+                                    class="dropdown-item"
+                                    href="en/users/<%= d.id %>/edit"
+                                    onclick="confirm('Are you sure to edit this user?')"
+                                    >Edit</a
+                                  >
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <% });} else { %>
+                          <td colspan="5">No Data Available</td>
+                          <% } %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foorter Partial -->
+        <%- include('../partials/footer'); %>
+      </div>
+    </div>
+
+    <!-- JS Scripts Partial -->
+    <%- include('../partials/scripts'); %>
+  </body>
+</html>

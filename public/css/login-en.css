@@ -431,6 +431,7 @@ label.valid {
   width: 20px;
   height: 20px;
   background: transparent; }
+  
   label.valid:after {
     font-family: 'Material-Design-Iconic-Font';
     content: '\f269';

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>وصلة تدريبية | تسجيل الدخول</title>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/login-ar.css" />
+
+    <!-- Icon -->
+    <link rel="shortcut icon" type="image/png" href="/images/icon.png" />
+    <style>
+      .field-icon {
+        float: right;
+        margin-right: 8px;
+        margin-top: -30px;
+        position: relative;
+        z-index: 2;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <!-- Sing in  Form -->
+      <section class="sign-in">
+        <div class="container">
+          <div id="lang">
+            <a href="/en" class="btn btn-light btn-xs" role="button">EN</a>
+          </div>
+          <div class="signin-content">
+            <div class="signin-image">
+              <figure>
+                <img
+                  src="/images/logo.png"
+                  alt="Training Link Logo"
+                  width="150px"
+                  height="auto"
+                />
+              </figure>
+              <figure>
+                <img src="/images/signin-image.jpg" alt="sing in image" />
+              </figure>
+            </div>
+            <div class="signin-form">
+              <h2 class="form-title">تسجيل الدخول</h2>
+              <form method="POST" class="register-form" id="login-form">
+                <div class="form-group">
+                  <label for="your_name"><i class="mdi mdi-email"></i></label>
+                  <input
+                    id="email"
+                    type="text"
+                    name="email"
+                    placeholder="الأيميل"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="your_pass"><i class="mdi mdi-lock"></i></label>
+                  <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    placeholder="كلمة السر"
+                    required
+                  />
+                  <span
+                    id="password-field"
+                    class="mdi mdi-eye field-icon toggle-password"
+                  ></span>
+                </div>
+                <div class="form-group form-button">
+                  <input
+                    type="submit"
+                    name="signin"
+                    id="signin"
+                    class="form-submit"
+                    value="تسجيل"
+                  />
+                  <div style="padding-top: 10px;">
+                    <a href="/ar/forget-password">نسيت كلمة المرور</a>
+                  </div>
+                </div>
+              </form>
+              <div class="social-login">
+                <p>
+                  تسجيل دخولك يعني أنك توافق على جميع<a
+                    href="/ar/terms-and-conditions"
+                    class="signup-image-link"
+                    >الشروط والأحكام</a
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- JS -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/login.js"></script>
+    <script>
+      $("#password-field").click(() => {
+        $("#password-field").toggleClass("mdi-eye mdi-eye-off");
+        let input = $("#password");
+        if (input.attr("type") == "password") {
+          input.attr("type", "text");
+        } else {
+          input.attr("type", "password");
+        }
+      });
+    </script>
+  </body>
+</html>
