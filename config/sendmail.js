@@ -6,7 +6,7 @@ const settings = require('./settings');
 const config = settings.EMAIL_CREDENTAILS;
 
 // fmethod to send an email
-module.exports = (title, mailBody) => {
+module.exports = (receiver, title, mailBody) => {
 
     // mail server configuration
     let transporter = nodemailer.createTransport({
@@ -20,9 +20,10 @@ module.exports = (title, mailBody) => {
     // email options
     let mailOptions = {
         from: '"Trainig Link" <optimist_gm@hotmail.com>',
-        to: 'optimist92809@gmail.com',
+        to: receiver,
         subject: title,
-        text: mailBody
+        text: '',
+        html: mailBody
     };
     
     // send email

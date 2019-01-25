@@ -71,8 +71,7 @@ module.exports.getProfile = (req, res) => {
 // update profile
 module.exports.updateProfile = (req, res) => {
     // get user input
-    const id = req.session.user.id;
-    const { name, email, phone } = req.body;
+    const { id, name, email, phone } = req.body;
     let errors = [];
 
     // active pages
@@ -102,6 +101,24 @@ module.exports.updateProfile = (req, res) => {
         });
     } else {
         // update profile
+        User.update({ name, email, phone }, { where: { id }}).then(val => {
+
+            // set session values
+            req.session.user.id = id;
+            req.session.user.name = name;
+            req.session.user.email = email;
+            req.session.user.phone = phone;
+
+            // display success message
+            console.log(val);
+            req.flash('success', 'Profile updated successfully');
+            res.redirect(req.get('referer'));
+        }).catch(err => {
+            // display error message
+            console.log(err);
+            req.flash('error', 'Cannot update profile');
+            res.redirect(req.get('referer'));
+        });
     }
 };
 

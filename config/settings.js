@@ -36,10 +36,14 @@ const ADMIN_USER = {
 }
 
 // host base url
-const HOST_URL = 'http://localhost:3000/';
+const HOST_URL = 'http://localhost:3000';
+
+// secret key
+const SECRET_KEY = 'traininglinksecret';
 
 // export all settings
 module.exports.DB_CONNECTION = DB_CONNECTION;
 module.exports.EMAIL_CREDENTAILS = EMAIL_CREDENTAILS;
 module.exports.ADMIN_USER = ADMIN_USER;
 module.exports.HOST_URL = HOST_URL;
+module.exports.SECRET_KEY = SECRET_KEY;
