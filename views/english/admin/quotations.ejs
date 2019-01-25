@@ -3,7 +3,7 @@
 
 <head>
   <!-- Head Partial -->
-  <%- include('../partials/head'); %>
+  <%- include('./partials/head'); %>
   
   <title>Training Link | Quotations</title>
 
@@ -18,11 +18,11 @@
 <body>
   <div class="wrapper ">
     <!-- Sidebar Partial -->
-    <%- include('../partials/sidebar'); %>
+    <%- include('./partials/sidebar'); %>
 
     <div class="main-panel">
       <!-- Nav Partial -->
-      <%- include('../partials/nav', { user }); %>
+      <%- include('./partials/nav', { user }); %>
       
       <!-- Content -->
       <div class="content">
@@ -35,7 +35,7 @@
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table">
+                    <table id="table" class="table">
                       <thead class="text-primary">
                         <th>Quotation File</th>
                         <th>Institute</th>
@@ -66,6 +66,7 @@
                       </tbody>
                     </table>
                   </div>
+                  <button class="btn-primary pull-left" onclick="printTable()">Print Table</button>
                 </div>
               </div>
             </div>
@@ -74,11 +75,33 @@
       </div>
 
       <!-- Foorter Partial -->
-      <%- include('../partials/footer'); %>
+      <%- include('./partials/footer'); %>
     </div>
   </div>
 
   <!-- JS Scripts Partial -->
-  <%- include('../partials/scripts'); %>
+  <%- include('./partials/scripts'); %>
+  <script src="/js/jspdf.min.js"></script>
+  <script src="/js/jspdf.plugin.autotable.js"></script>
+
+  <!-- Custom JS Script -->
+  <script>
+    $(document).ready(() => {
+      $('#table').DataTable({
+        "bPaginate": true,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bInfo": false,
+        "bAutoWidth": false 
+      });
+    });
+
+    // function to print table into PDF
+    function printTable() {
+      const doc = new jsPDF();
+      doc.autoTable({ html: '#table', theme: 'grid' });
+      doc.save('quotations.pdf');
+    }
+  </script>
 </body>
 </html>
