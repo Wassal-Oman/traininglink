@@ -29,15 +29,28 @@ const sessionChecker = (req, res, next) => {
 /* **** Common Routes **** */
 
 // default route
-router.get('/', sessionChecker, (req, res) => {
-    res.redirect('/en/home');
+router.get('/', (req, res) => {
+    res.redirect('/en/login');
 });
 
 // login - GET
 router.get('/login', (req, res) => {
-    // check if user logged in
+
     if(req.session.user) {
-        res.redirect('/en/home');
+        // check user type
+        switch(req.session.user.dashboardUserTypeId) {
+            case 1:
+                res.redirect('/en/admin/home');
+                break;
+            case 2:
+                res.redirect('/en/institute/home');
+                break;
+            case 3:
+                res.redirect('/en/company/home');
+                break;
+            default:
+                res.redirect('/en/logout');
+        }
     }
 
     // load login page
@@ -154,7 +167,7 @@ router.post('/forget-password', (req, res) => {
                         res.redirect('/en/forget-password');
                     } else {
                         // send email
-                        mail(email, 'Reset Password', `<p>Press the following link to reset your password</p><br><a href='${host}/en/reset-password/${id}/${token}'>Press Here</a>`).then(val => {
+                        mail(email, 'Reset Password', `<p>Follow this link to reset your password.</p><br><a href='${host}/en/reset-password/${id}/${token}'>Press Here</a>`).then(val => {
                             console.log(val);
                             req.flash('success', 'Email has sent to reset password');
                             res.redirect('/en/forget-password');
@@ -186,6 +199,7 @@ router.get('/reset-password/:id/:token', (req, res) => {
                 message: 'Link has expired .. Send Another one'
             });
         } else {
+            console.log(val);
             res.render('english/reset-password', {
                 id
             });
@@ -250,19 +264,39 @@ router.get('/terms-and-conditions', (req, res) => {
 });
 
 /* ***** admin routes ***** */
+router.get('/admin', sessionChecker, AdminController.home);
 router.get('/admin/home', sessionChecker, AdminController.home);
 router.get('/admin/profile', sessionChecker, AdminController.getProfile);
 router.post('/admin/change-password', sessionChecker, AdminController.changePassword);
 router.get('/admin/users', sessionChecker, AdminController.getUsers);
+router.get('/admin/users/add-user', sessionChecker, AdminController.addAdminGet);
+router.post('/admin/users/add-user', sessionChecker, AdminController.addAdminPost);
+router.get('/admin/users/:email/:token', sessionChecker, AdminController.verifyUserEmail);
 router.get('/admin/institutes', sessionChecker, AdminController.getIntitutes);
+router.get('/admin/institutes/add', sessionChecker, AdminController.addInstituteGet);
+router.post('/admin/institutes/add', sessionChecker, AdminController.addInstitutePost);
+router.get('/admin/institutes/:id/add-user', sessionChecker, AdminController.addInstituteUserGet);
+router.post('/admin/institutes/add-user', sessionChecker, AdminController.addInstituteUserPost);
+router.get('/admin/institutes/:id/delete', sessionChecker, AdminController.deleteInstitute);
+router.get('/admin/institutes/:id/edit', sessionChecker, AdminController.updateInstituteGet);
+router.post('/admin/institutes/edit', sessionChecker, AdminController.updateInstitutePost);
 router.get('/admin/companies', sessionChecker, AdminController.getCompanies);
+router.get('/admin/companies/add', sessionChecker, AdminController.addCompanyGet);
+router.post('/admin/companies/add', sessionChecker, AdminController.addCompnayPost);
+router.get('/admin/companies/:id/add-user', sessionChecker, AdminController.addCompanyUserGet);
+router.post('/admin/companies/add-user', sessionChecker, AdminController.addCompanyUserPost);
+router.get('/admin/companies/:id/delete', sessionChecker, AdminController.deleteCompany);
+router.get('/admin/companies/:id/edit', sessionChecker, AdminController.updateCompanyGet);
+router.post('/admin/companies/edit', sessionChecker, AdminController.updateCompanyPost);
 router.get('/admin/students', sessionChecker, AdminController.getStudents);
 router.get('/admin/quotations', sessionChecker, AdminController.getQuotations);
 
 /* ***** institute routes ***** */
+router.get('/institute', sessionChecker, InstituteController.home);
 router.get('/institute/home', sessionChecker, InstituteController.home);
 
 /* ***** company routes ***** */
+router.get('/company', sessionChecker, CompanyController.home);
 router.get('/company/home', sessionChecker, CompanyController.home);
 
 // logout route

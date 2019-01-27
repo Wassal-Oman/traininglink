@@ -65,6 +65,11 @@ const User = sequelize.define('dashboard_users', {
     password: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    isEmailVerified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 }, {
     hooks: {
@@ -101,7 +106,8 @@ sequelize.sync().then(() => {
         email: admin.EMAIL,
         phone: admin.PHONE,
         password: admin.PASSWORD,
-        dashboardUserTypeId: admin.TYPE
+        dashboardUserTypeId: admin.TYPE,
+        isEmailVerified: admin.IS_VERIFIED
     });
 }).catch((err) => {
     console.log(err);

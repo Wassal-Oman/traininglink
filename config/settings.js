@@ -32,7 +32,8 @@ const ADMIN_USER = {
     EMAIL: 'optimist_gm@hotmail.com',
     PHONE: '96132329',
     PASSWORD: 'ghanim123',
-    TYPE: 1
+    TYPE: 1,
+    IS_VERIFIED: true
 }
 
 // host base url
