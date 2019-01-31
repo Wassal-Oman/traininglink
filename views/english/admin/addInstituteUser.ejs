@@ -4,7 +4,7 @@
     <!-- Head Partial -->
     <%- include('./partials/head'); %>
 
-    <title>Training Link | Add New Admin</title>
+    <title>Training Link | Add New Institute User</title>
 
     <!-- Custom Style -->
     <style>
@@ -42,11 +42,11 @@
               <div class="col-md-12">
                 <div class="card mx-auto">
                   <div class="card-header card-header-primary">
-                    <h4 class="card-title">Add New Administrator</h4>
+                    <h4 class="card-title">Add Institute User</h4>
                   </div>
                   <div class="card-body">
                     <%- include('./partials/messages'); %>
-                    <form action="/en/admin/users/add-user" method="POST">
+                    <form action="/en/admin/institutes/add-user" method="POST">
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-group">
@@ -80,11 +80,12 @@
                           </div>
                         </div>
                       </div>
+                      <input type="hidden" name="institute_id" value="<%= institute_id %>">
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-group">
-                            <input type="submit" value="Add Administrator" class="btn btn-primary pull-left">
-                            <a href="/en/admin/users" class="btn btn-primary pull-right">Go Back</a>
+                            <input type="submit" value="Add Institute User" class="btn btn-primary pull-left">
+                            <a href="/en/admin/institutes/<%= institute_id %>/show" class="btn btn-primary pull-right">Go Back</a>
                           </div>
                         </div>
                       </div>

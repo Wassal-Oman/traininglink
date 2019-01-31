@@ -2,7 +2,7 @@
 const AWS = {
     EMAIL: "intisar.miran.48@gmail.com",
     PASSWORD: "Intisar@123#"
-}
+};
 
 // database settings
 const DB_CONNECTION = {
@@ -34,7 +34,7 @@ const ADMIN_USER = {
     PASSWORD: 'ghanim123',
     TYPE: 1,
     IS_VERIFIED: true
-}
+};
 
 // host base url
 const HOST_URL = 'http://localhost:3000';

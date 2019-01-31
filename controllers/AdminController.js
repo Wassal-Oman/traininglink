@@ -1,6 +1,7 @@
 // import needed libraries
 const jwt = require('jsonwebtoken');
 const emailValidator = require('email-validator');
+const Sequelize = require('sequelize');
 const User = require('../models/User');
 const Institute = require('../models/Institute');
 const Student = require('../models/Student');
@@ -9,6 +10,9 @@ const Quotation = require('../models/Quotation');
 const settings = require('../config/settings');
 const encrypt = require('../config/encryption');
 const mail = require('../config/sendmail');
+
+// enable Sequelize Operations option
+const Op = Sequelize.Op;
 
 // get host
 const host = settings.HOST_URL;
@@ -287,45 +291,169 @@ module.exports.addAdminPost = (req, res) => {
         });
     } else {
 
-        // add new admin
-        User.create({
-            name,
-            email,
-            phone,
-            password,
-            dashboardUserTypeId: 1
-        }).then(val => {
-            console.log(val);
-
-            // create payload
-            const payload = { name, email, phone };
-
-            // sign a new token
-            jwt.sign({ payload }, jwtSecretKey, { expiresIn: '1h'}, (err, token) => {
-                if(err) {
-                    console.log(err);
-                    req.flash('error', 'Cannot generate token');
+        // first check if user exists
+        User.findOne({  where: { [Op.or]: [{ email }, { phone }] } }).then(user => {
+                if(user) {
+                    req.flash('error', 'User already exists');
                     res.redirect(req.get('referer'));
                 } else {
-                    // send a verification email
-                    mail(email, 'Email Verification', `<p>Follow this link to verify your email address.</p><br><a href='${host}/en/admin/users/${email}/${token}'>Press Here</a>`).then(val => {
+                    // add new admin
+                    User.create({
+                        name,
+                        email,
+                        phone,
+                        password,
+                        dashboardUserTypeId: 1
+                    }).then(val => {
                         console.log(val);
-                        req.flash('success', 'User has been created .. Verification email has been sent');
-                        res.redirect(req.get('referer'));
+
+                        // create payload
+                        const payload = { name, email, phone };
+
+                        // sign a new token
+                        jwt.sign({ payload }, jwtSecretKey, { expiresIn: '1h'}, (err, token) => {
+                            if(err) {
+                                console.log(err);
+                                req.flash('error', 'Cannot generate token');
+                                res.redirect(req.get('referer'));
+                            } else {
+                                // send a verification email
+                                mail(email, 'Email Verification', `<p>Follow this link to verify your email address.</p><br><a href='${host}/en/admin/users/${email}/${token}'>Press Here</a>`).then(val => {
+                                    console.log(val);
+                                    req.flash('success', 'User has been created .. Verification email has been sent');
+                                    res.redirect(req.get('referer'));
+                                }).catch(err => {
+                                    console.log(err);
+                                    req.flash('error', 'Cannot send verification email');
+                                    res.redirect(req.get('referer'));
+                                });
+                            }
+                        });
                     }).catch(err => {
                         console.log(err);
-                        req.flash('error', 'Cannot send verification email');
+                        req.flash('error', 'Cannot create user');
                         res.redirect(req.get('referer'));
                     });
                 }
+            }).catch(err => {
+                console.log(err);
+                res.redirect('en/500');
             });
+    }
+};
+
+// edit admin - GET
+module.exports.editUserGet = (req, res) => {
+
+    // get admin id
+    const id = req.params.id;
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: 'active',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // get user
+    if(id != '') {
+        User.findOne({ where: { id }}).then(user => {
+            if(!user) {
+                req.flash('error', 'Unknown user');
+                res.redirect('/en/admin/users');
+            } else {
+                // get user details
+                res.render('english/admin/editUser', {
+                    user: req.session.user,
+                    editUser: user.dataValues,
+                    pages
+                });
+            }
         }).catch(err => {
             console.log(err);
-            req.flash('error', 'Cannot create user');
-            res.redirect(req.get('referer'));
+            res.redirect('/en/500');
+        });
+    } else {
+        req.flash('error', 'Unknown user id');
+        res.redirect('/en/admin/users');
+    }
+};
+
+// edit admin - POST
+module.exports.editUserPost = (req, res) => {
+    // get user inputs
+    const { id, name, email, phone } = req.body;
+    let errors = [];
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: 'active',
+        institutes: '',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // validate input
+    if (!id || !name || !email || !phone) {
+        errors.push({ msg: 'Please enter all fields' });
+    } else if(!emailValidator.validate(email)) {
+        errors.push({ msg: 'Email is invalid' });
+    } 
+
+    // check if errors exist
+    if (errors.length > 0) {
+        res.render('english/admin/editUser', {
+            errors,
+            user: req.session.user,
+            pages
+        });
+    } else {
+
+        // update user data
+        User.update({ name, phone }, { where: { id }}).then(val => {
+            console.log(val);
+            req.flash('success', 'User has been  updated successfully');
+            res.redirect('/en/admin/users');
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/en/500');
         });
     }
 };
+
+// delete user - GET
+module.exports.deleteUser = (req, res) => {
+    // get user id
+    id = req.params.id;
+
+    // check if own id
+    if(id != req.session.user.id) {
+
+        // delete user account
+        User.destroy({ where: { id }}).then(val => {
+            if(val > 0) {
+                req.flash('success', 'User has been deleted successfully');
+                res.redirect('/en/admin/users');
+            } else {
+                req.flash('warning', 'User cannot be deleted');
+                res.redirect('/en/admin/users');
+            }
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/en/500');
+        });
+    } else {
+        req.flash('warning', 'You cannot delete your own account');
+        res.redirect('/en/admin/users');
+    }
+}
 
 // verify user email
 module.exports.verifyUserEmail = (req, res) => {
@@ -334,28 +462,33 @@ module.exports.verifyUserEmail = (req, res) => {
     const email = req.params.email;
     const token = req.params.token;
 
-    // verify email and token
-    jwt.verify(token, jwtSecretKey, (err, val) => {
-        if(err) {
-            res.render('english/message', {
-                title: 'ERROR',
-                message: 'Cannot Verify Email .. Link might have expired'
-            });
-        } else {
-
-            // update user data
-            User.update({ isEmailVerified: 1 }, { where: { email }}).then(val => {
-                console.log(val);
-                res.render('english/message', {
-                    title: 'SUCCESS',
-                    message: 'Email has been verified'
-                });
-            }).catch(err => {
+    if(typeof email !== "undefined" && typeof token !== "undefined") {
+        // verify email and token
+        jwt.verify(token, jwtSecretKey, (err, val) => {
+            if(err) {
                 console.log(err);
-                res.redirect('/en/500');
-            });
-        }
-    });
+                res.render('english/message', {
+                    title: 'ERROR',
+                    message: 'Cannot Verify Email .. Link might have expired'
+                });
+            } else {
+                console.log(val);
+                // update user data
+                User.update({ isEmailVerified: 1 }, { where: { email }}).then(val => {
+                    console.log(val);
+                    res.render('english/message', {
+                        title: 'SUCCESS',
+                        message: 'Email has been verified'
+                    });
+                }).catch(err => {
+                    console.log(err);
+                    res.redirect('/en/500');
+                });
+            }
+        });
+    } else {
+        res.redirect('/');
+    }
 };
 
 // get institutes
@@ -388,7 +521,7 @@ module.exports.getIntitutes = (req, res) => {
 
 // add new institute - GET
 module.exports.addInstituteGet = (req, res) => {
-
+   
 };
 
 // add new istitute - POST
@@ -396,14 +529,161 @@ module.exports.addInstitutePost = (req, res) => {
 
 };
 
+// show institute details
+module.exports.showInstituteDetails = (req, res) => {
+    // get id
+    const id = req.params.id;
+
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: 'active',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    if(id) {
+        Institute.findOne({ where: { institute_id: id }}).then(institute => {
+            if(!institute) {
+                req.flash('warning', 'No details available');
+                res.redirect('/en/admin/institutes');
+            } else {
+                // get list of users 
+                User.findAll({ where: { dashboardUserTypeId: 2,  instituteInstituteId: institute.dataValues.institute_id }}).then(users => {
+                    res.render('english/admin/instituteDetails', {
+                        user: req.session.user,
+                        pages,
+                        institute,
+                        users
+                    });
+                }).catch(err => {
+                    console.log(err);
+                    res.redirect('/en/500');
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/en/500');
+        });
+
+    } else {
+        req.flash('error', 'No details available');
+        res.redirect('/en/admin/institutes');
+    }
+};
+
 // add institute user - GET
 module.exports.addInstituteUserGet = (req, res) => {
+    // get institute id
+    const institute_id = req.params.id;
 
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: 'active',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // display add user page
+    res.render('english/admin/addInstituteUser.ejs', {
+        user: req.session.user,
+        institute_id,
+        pages
+    });
 };
 
 // add institute user - POST
 module.exports.addInstituteUserPost = (req, res) => {
+    // get user inputs
+    const { institute_id, name, email, phone, password } = req.body;
+    let errors = [];
 
+    // active pages
+    const pages = {
+        home: '',
+        profile: '',
+        users: '',
+        institutes: 'active',
+        companies: '',
+        students: '',
+        quotations: ''
+    };
+
+    // validation
+    if(!institute_id) {
+        errors.push({ msg: 'Institute is unknown' });
+    } else if(!name || !email || !phone || !password) {
+        errors.push({ msg: 'Please enter all fields' });
+    } else if(!emailValidator.validate(email)) {
+        errors.push({ msg: 'Email is invalid' });
+    }
+
+    // check if errors exist
+    if (errors.length > 0) {
+        res.render('english/admin/addInstituteUser', {
+            errors,
+            user: req.session.user,
+            pages,
+            institute_id
+        });
+    } else {
+        // first check if user exists
+        User.findOne({  where: { [Op.or]: [{ email }, { phone }] } }).then(user => {
+            if(user) {
+                req.flash('error', 'User already exists');
+                res.redirect(req.get('referer'));
+            } else {
+                // add new admin
+                User.create({
+                    name,
+                    email,
+                    phone,
+                    password,
+                    dashboardUserTypeId: 2,
+                    instituteInstituteId: institute_id
+                }).then(val => {
+                    console.log(val);
+
+                    // create payload
+                    const payload = { name, email, phone };
+
+                    // sign a new token
+                    jwt.sign({ payload }, jwtSecretKey, { expiresIn: '1h'}, (err, token) => {
+                        if(err) {
+                            console.log(err);
+                            req.flash('error', 'Cannot generate token');
+                            res.redirect(req.get('referer'));
+                        } else {
+                            // send a verification email
+                            mail(email, 'Email Verification', `<p>Follow this link to verify your email address.</p><br><a href='${host}/en/admin/users/${email}/${token}'>Press Here</a>`).then(val => {
+                                console.log(val);
+                                req.flash('success', 'User has been created .. Verification email has been sent');
+                                res.redirect(req.get('referer'));
+                            }).catch(err => {
+                                console.log(err);
+                                req.flash('error', 'Cannot send verification email');
+                                res.redirect(req.get('referer'));
+                            });
+                        }
+                    });
+                }).catch(err => {
+                    console.log(err);
+                    req.flash('error', 'Cannot create user');
+                    res.redirect(req.get('referer'));
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            res.redirect('en/500');
+        });
+    }
 };
 
 // delete institute
@@ -544,7 +824,7 @@ module.exports.getQuotations = (req, res) => {
 // function to get dashboard users
 function getUsers() {
     return new Promise((resolve, reject) => {
-        User.findAll().then(val => {
+        User.findAll({ where: { }}).then(val => {
             return resolve(val);
         }).catch(err => {
             console.log(err);

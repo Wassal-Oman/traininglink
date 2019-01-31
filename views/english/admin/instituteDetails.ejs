@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Head Partial -->
+    <%- include('./partials/head'); %>
+
+    <title>Training Link | Institute Details</title>
+
+    <!-- Custom Style -->
+    <style>
+      #map {
+          height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar Partial -->
+      <%- include('./partials/sidebar'); %>
+
+      <div class="main-panel">
+        <!-- Nav Partial -->
+        <%- include('./partials/nav', { user }); %>
+
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title"><%= institute.name %></h4>
+                  </div>
+                  <div class="card-body">
+                    <form>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating"
+                              >Institute Address</label
+                            >
+                            <input
+                              name="address"
+                              type="text"
+                              class="form-control"
+                              value="<%= institute.institute_address %>"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label>Institute Description</label>
+                            <div class="form-group">
+                              <textarea class="form-control" rows="3">
+                                <%= institute.institute_description %>
+                              </textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating"
+                              >Is 1<sup>st</sup> Class</label
+                            >
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="<% if(institute.is_first_class == 1) { %> Yes <% } else { %> No <% } %>"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="clearfix"></div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title">Institute Image</h4>
+                  </div>
+                  <div class="card-body">
+                    <img
+                      src="<% const placeholder = '/images/placeholder.jpg'; if(institute.institute_picture !== '') { %><%= institute.institute_picture %><% } else { %><%= placeholder %><% } %>"
+                      alt="Placeholder Image"
+                      width="100%"
+                      height="250px"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title">Institute Location</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="map"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title ">List of Institute Users</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table id="table" class="table">
+                        <thead class="text-primary">
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Phone</th>
+                          <th>Is Email Verified</th>
+                        </thead>
+                        <tbody>
+                          <% if(users !== null && users.length > 0) {%> <%
+                          users.forEach(u => {%>
+                          <tr>
+                            <td><%= u.name %></td>
+                            <td><%= u.email %></td>
+                            <td><%= u.phone %></td>
+                            <td><%= u.isEmailVerified %></td>
+                          </tr>
+                          <% });} else { %>
+                          <td colspan="4" class="text-center">
+                            No user has been added for this institute
+                          </td>
+                          <% } %>
+                        </tbody>
+                      </table>
+                    </div>
+                    <a
+                      href="/en/admin/institutes/<%= institute.institute_id %>/add-user"
+                      class="btn btn-primary pull-left"
+                      >Add New User</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foorter Partial -->
+        <%- include('./partials/footer'); %>
+      </div>
+    </div>
+
+    <!-- JS Scripts Partial -->
+    <%- include('./partials/scripts'); %>
+    <!--  Google Maps Plugin    -->
+    <script>
+        function myMap() {
+            let mapProp = {
+                center: new google.maps.LatLng('<%= institute.institute_location_latitude %>', '<%= institute.institute_location_longitude %>'),
+                zoom: 13,
+            };
+
+            let map = new google.maps.Map(document.getElementById("map"), mapProp);
+
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng('<%= institute.institute_location_latitude %>', '<%= institute.institute_location_longitude %>'),
+                map: map,
+                title: '<%= institute.name %>'
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6qoQd-6N7mXhKypDi7Me-AkKgshiLIBU&callback=myMap" async defer></script>
+  </body>
+</html>

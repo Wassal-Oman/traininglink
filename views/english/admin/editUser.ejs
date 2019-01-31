@@ -4,7 +4,7 @@
     <!-- Head Partial -->
     <%- include('./partials/head'); %>
 
-    <title>Training Link | Add New Admin</title>
+    <title>Training Link | Edit User</title>
 
     <!-- Custom Style -->
     <style>
@@ -42,16 +42,16 @@
               <div class="col-md-12">
                 <div class="card mx-auto">
                   <div class="card-header card-header-primary">
-                    <h4 class="card-title">Add New Administrator</h4>
+                    <h4 class="card-title">Edit User</h4>
                   </div>
                   <div class="card-body">
                     <%- include('./partials/messages'); %>
-                    <form action="/en/admin/users/add-user" method="POST">
+                    <form action="/en/admin/users/edit" method="POST">
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-group">
                             <label class="bmd-label-floating">User Name</label>
-                            <input name="name" type="text" class="form-control" />
+                            <input name="name" type="text" class="form-control" value="<%= editUser.name %>"/>
                           </div>
                         </div>
                       </div>
@@ -59,7 +59,7 @@
                         <div class="col-md-12">
                           <div class="form-group">
                             <label class="bmd-label-floating">Email Address</label>
-                            <input name="email" type="email" class="form-control" />
+                            <input name="email" type="email" class="form-control" value="<%= editUser.email %>" readonly/>
                           </div>
                         </div>
                       </div>
@@ -67,27 +67,19 @@
                         <div class="col-md-12">
                           <div class="form-group">
                             <label class="bmd-label-floating">Phone Number</label>
-                            <input name="phone" type="number" class="form-control" />
+                            <input name="phone" type="number" class="form-control" value="<%= editUser.phone %>"/>
                           </div>
                         </div>
                       </div>
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-group">
-                            <label class="bmd-label-floating">Password</label>
-                            <input id="password" name="password" type="password" class="form-control" />
-                            <span id="password-field" class="mdi mdi-eye field-icon toggle-password"></span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                          <div class="form-group">
-                            <input type="submit" value="Add Administrator" class="btn btn-primary pull-left">
+                            <input type="submit" value="Edit User" class="btn btn-primary pull-left">
                             <a href="/en/admin/users" class="btn btn-primary pull-right">Go Back</a>
                           </div>
                         </div>
                       </div>
+                      <input type="hidden" name="id" value="<%= editUser.id %>">
                       <div class="clearfix"></div>
                     </form>
                   </div>
@@ -104,16 +96,5 @@
 
     <!-- JS Scripts Partial -->
     <%- include('./partials/scripts'); %>
-    <script>
-      $("#password-field").click(() => {
-        $("#password-field").toggleClass("mdi-eye mdi-eye-off");
-        let input = $("#password");
-        if (input.attr("type") == "password") {
-          input.attr("type", "text");
-        } else {
-          input.attr("type", "password");
-        }
-      });
-    </script>
   </body>
 </html>

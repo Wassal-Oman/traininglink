@@ -33,6 +33,8 @@
                     <h4 class="card-title ">List of Users</h4>
                   </div>
                   <div class="card-body">
+                    <!-- Messages Partial -->
+                    <%- include('./partials/messages'); %>
                     <div class="table-responsive">
                       <table id="table" class="table">
                         <thead class="text-primary">
@@ -40,6 +42,7 @@
                           <th>Email</th>
                           <th>Phone</th>
                           <th>Role</th>
+                          <th>Is Email Verified</th>
                           <th>Manage</th>
                         </thead>
                         <tbody>
@@ -51,10 +54,11 @@
                             <td>
                               <% if(d.dashboardUserTypeId == 1) { %>
                               Administrator <% } else if(d.dashboardUserTypeId
-                              == 2) { %> Institute <% } else
-                              if(d.dashboardUserTypeId == 3) { %> Company <% }
+                              == 2) { %> Institute User <% } else
+                              if(d.dashboardUserTypeId == 3) { %> Company User <% }
                               %>
                             </td>
+                            <td><%= d.isEmailVerified %></td>
                             <td>
                               <div class="dropdown show">
                                 <a
@@ -74,14 +78,14 @@
                                 >
                                   <a
                                     class="dropdown-item"
-                                    href="en/users/<%= d.id %>/delete"
-                                    onclick="confirm('Are you sure to delete this user?')"
+                                    href="/en/admin/users/<%= d.id %>/delete"
+                                    onclick="return confirm('Are you sure to delete this user?')"
                                     >Delete</a
                                   >
                                   <a
                                     class="dropdown-item"
-                                    href="en/users/<%= d.id %>/edit"
-                                    onclick="confirm('Are you sure to edit this user?')"
+                                    href="/en/admin/users/<%= d.id %>/edit"
+                                    onclick="return confirm('Are you sure to edit this user?')"
                                     >Edit</a
                                   >
                                 </div>

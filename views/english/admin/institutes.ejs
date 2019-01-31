@@ -57,9 +57,9 @@
                                   <i class="material-icons">settings</i>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                  <a class="dropdown-item" href="en/institutes/<%= d.institute_id %>/show">Show</a>
-                                  <a class="dropdown-item" href="en/institutes/<%= d.institute_id %>/delete" onclick="confirm('Are you sure to delete this institute?')">Delete</a>
-                                  <a class="dropdown-item" href="en/institutes/<%= d.institute_id %>/edit" onclick="confirm('Are you sure to edit this institute?')">Edit</a>
+                                  <a class="dropdown-item" href="/en/admin/institutes/<%= d.institute_id %>/show">Show Details</a>
+                                  <a class="dropdown-item" href="/en/admin/institutes/<%= d.institute_id %>/delete" onclick="confirm('Are you sure to delete this institute?')">Delete</a>
+                                  <a class="dropdown-item" href="/en/admin/institutes/<%= d.institute_id %>/edit" onclick="confirm('Are you sure to edit this institute?')">Edit</a>
                                 </div>
                               </div>
                             </td>
@@ -70,6 +70,7 @@
                       </tbody>
                     </table>
                   </div>
+                  <a href="/en/admin/institutes/add" class="btn btn-primary pull-left">Add New Institute</a>
                   <button class="btn btn-primary pull-left" onclick="printTable()">Print Table</button>
                 </div>
               </div>

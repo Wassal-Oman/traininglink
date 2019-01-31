@@ -94,22 +94,29 @@ router.post('/login', (req, res) => {
                         req.flash('error', 'Password is incorrect');
                         res.redirect(req.get('referer'));
                     } else {
-                        // redirect to home page
-                        req.session.user = user.dataValues;
+                        // check if email is verified
+                        if(user.dataValues.isEmailVerified) {
+                            // store user data
+                            req.session.user = user.dataValues;
 
-                        // // check user
-                        switch(req.session.user.dashboardUserTypeId) {
-                            case 1:
-                                res.redirect('/en/admin/home');
-                                break;
-                            case 2:
-                                res.redirect('/en/institute/home');
-                                break;
-                            case 3:
-                                res.redirect('/en/company/home');
-                                break;
-                            default:
-                                res.redirect('/en/logout');
+                            // check user type
+                            switch(user.dataValues.dashboardUserTypeId) {
+                                case 1:
+                                    res.redirect('/en/admin/home');
+                                    break;
+                                case 2:
+                                    res.redirect('/en/institute/home');
+                                    break;
+                                case 3:
+                                    res.redirect('/en/company/home');
+                                    break;
+                                default:
+                                    res.redirect('/en/logout');
+                            }
+                        } else {
+                            // reload page
+                            req.flash('warning', 'Email is not verified');
+                            res.redirect(req.get('referer'));
                         }
                     }
                 }).catch(err => {
@@ -271,10 +278,14 @@ router.post('/admin/change-password', sessionChecker, AdminController.changePass
 router.get('/admin/users', sessionChecker, AdminController.getUsers);
 router.get('/admin/users/add-user', sessionChecker, AdminController.addAdminGet);
 router.post('/admin/users/add-user', sessionChecker, AdminController.addAdminPost);
-router.get('/admin/users/:email/:token', sessionChecker, AdminController.verifyUserEmail);
+router.get('/admin/users/:id/delete', sessionChecker, AdminController.deleteUser);
+router.get('/admin/users/:id/edit', sessionChecker, AdminController.editUserGet);
+router.post('/admin/users/edit', sessionChecker, AdminController.editUserPost);
+router.get('/admin/users/:email/:token', AdminController.verifyUserEmail);
 router.get('/admin/institutes', sessionChecker, AdminController.getIntitutes);
 router.get('/admin/institutes/add', sessionChecker, AdminController.addInstituteGet);
 router.post('/admin/institutes/add', sessionChecker, AdminController.addInstitutePost);
+router.get('/admin/institutes/:id/show', sessionChecker, AdminController.showInstituteDetails);
 router.get('/admin/institutes/:id/add-user', sessionChecker, AdminController.addInstituteUserGet);
 router.post('/admin/institutes/add-user', sessionChecker, AdminController.addInstituteUserPost);
 router.get('/admin/institutes/:id/delete', sessionChecker, AdminController.deleteInstitute);
