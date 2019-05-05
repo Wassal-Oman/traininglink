@@ -1,46 +1,46 @@
 // AWS Credentails
 const AWS = {
-    EMAIL: "intisar.miran.48@gmail.com",
-    PASSWORD: "Intisar@123#"
+  EMAIL: "intisar.miran.48@gmail.com",
+  PASSWORD: "Intisar@123#"
 };
 
 // database settings
 const DB_CONNECTION = {
-    HOST: '31.170.166.179',
-    USERNAME: 'u327976002_tl',
-    PASSWORD: 'Intisar',
-    DATABASE: 'u327976002_tl',
-    DIALECT: 'mysql'
+  HOST: "31.170.166.185",
+  USERNAME: "u736110006_miran",
+  PASSWORD: "Miran_Oman@123",
+  DATABASE: "u736110006_miran",
+  DIALECT: "mysql"
 };
 
 // email settings
 const EMAIL_CREDENTAILS = {
-    SMTP_HOST: "smtp-mail.outlook.com",
-    SMTP_PORT: 587,
-    AUTH: {
-        user: "optimist_gm@hotmail.com",
-        pass: "GmOptimist9"
-    },
-    TLS: {
-        rejectUnauthorized: false
-    }
+  SMTP_HOST: "smtp-mail.outlook.com",
+  SMTP_PORT: 587,
+  AUTH: {
+    user: "optimist_gm@hotmail.com",
+    pass: "GmOptimist9"
+  },
+  TLS: {
+    rejectUnauthorized: false
+  }
 };
 
 // Admin User
 const ADMIN_USER = {
-    NAME: 'Ghanim Al-Marzouqi',
-    EMAIL: 'optimist_gm@hotmail.com',
-    PHONE: '96132329',
-    PASSWORD: 'ghanim123',
-    TYPE: 1,
-    IS_VERIFIED: true
+  NAME: "Ghanim Al-Marzouqi",
+  EMAIL: "optimist_gm@hotmail.com",
+  PHONE: "96132329",
+  PASSWORD: "ghanim123",
+  TYPE: 1,
+  IS_VERIFIED: true
 };
 
 // host base url
-const HOST_URL = 'http://localhost:3000';
+const HOST_URL = "http://localhost:3000";
 
 // secret key
-const SECRET_KEY = 'traininglinksecret';
+const SECRET_KEY = "traininglinksecret";
 
 // export all settings
 module.exports.DB_CONNECTION = DB_CONNECTION;

@@ -9,7 +9,7 @@
     <!-- Custom Style -->
     <style>
       #map {
-          height: 400px;
+        height: 400px;
       }
     </style>
   </head>
@@ -96,16 +96,16 @@
               </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header card-header-primary">
-                            <h4 class="card-title">Institute Location</h4>
-                        </div>
-                        <div class="card-body">
-                            <div id="map"></div>
-                        </div>
-                    </div>
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title">Institute Location</h4>
+                  </div>
+                  <div class="card-body">
+                    <div id="map"></div>
+                  </div>
                 </div>
+              </div>
             </div>
             <div class="row">
               <div class="col-md-12">
@@ -123,8 +123,8 @@
                           <th>Is Email Verified</th>
                         </thead>
                         <tbody>
-                          <% if(users !== null && users.length > 0) {%> <%
-                          users.forEach(u => {%>
+                          <% if(users !== null && users.length > 0) { %> <%
+                          users.forEach(u => { %>
                           <tr>
                             <td><%= u.name %></td>
                             <td><%= u.email %></td>
@@ -160,21 +160,31 @@
     <%- include('./partials/scripts'); %>
     <!--  Google Maps Plugin    -->
     <script>
-        function myMap() {
-            let mapProp = {
-                center: new google.maps.LatLng('<%= institute.institute_location_latitude %>', '<%= institute.institute_location_longitude %>'),
-                zoom: 13,
-            };
+      function myMap() {
+        let mapProp = {
+          center: new google.maps.LatLng(
+            "<%= institute.institute_location_latitude %>",
+            "<%= institute.institute_location_longitude %>"
+          ),
+          zoom: 13
+        };
 
-            let map = new google.maps.Map(document.getElementById("map"), mapProp);
+        let map = new google.maps.Map(document.getElementById("map"), mapProp);
 
-            var marker = new google.maps.Marker({
-                position: new google.maps.LatLng('<%= institute.institute_location_latitude %>', '<%= institute.institute_location_longitude %>'),
-                map: map,
-                title: '<%= institute.name %>'
-            });
-        }
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(
+            "<%= institute.institute_location_latitude %>",
+            "<%= institute.institute_location_longitude %>"
+          ),
+          map: map,
+          title: "<%= institute.name %>"
+        });
+      }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6qoQd-6N7mXhKypDi7Me-AkKgshiLIBU&callback=myMap" async defer></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6qoQd-6N7mXhKypDi7Me-AkKgshiLIBU&callback=myMap"
+      async
+      defer
+    ></script>
   </body>
 </html>
